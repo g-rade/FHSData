@@ -7,7 +7,10 @@ output: html_document
 ```{r}
 library(survival)
 library(tidyverse)
+library(rio)
+library(survminer)
 ```
+
 
 ### Importing the Data Sets
 ```{r}
@@ -17,7 +20,10 @@ surv_data2 <- read_dta("FHS 2154 - datasets/dr281_vr_survaf_2014_a_0987s.dta")
 surv_data3 <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta")
 surv_data4 <- read_dta("FHS 2154 - datasets/dr281_vr_survstk_2014_a_1031s.dta")
 surv_data5 <- read_dta("FHS 2154 - datasets/dr281_vr_soe_2016_a_1073s.dta")
+all_data2022 <- read_sas('alldata2022.sas7bdat copy')
+surv_data6 <- read_dta("FHS 2154 - datasets/dr281_vr_soe_2016_a_1073s.dta")
 ```
+
 
 ### Data Wrangling
 ```{r}
@@ -27,18 +33,49 @@ surv_data5 <- surv_data5 %>%
 surv_data4 <- surv_data4 %>% 
   select(IDTYPE, ranid, stroke, strokedate)
 
-surv_data2 <- surv_data2 %>% 
+surv_data1 <- surv_data1 %>% 
+  select(IDTYPE, ranid, CVDDEATH, CHDDEATH, DATEDTH)
   
 
 surv_data_total <- surv_data1 %>% 
   full_join(surv_data2, by = c("ranid", "IDTYPE")) %>% 
   full_join(surv_data3, by = c("ranid", "IDTYPE")) %>% 
   full_join(surv_data4, by = c("ranid", "IDTYPE")) %>% 
-  full_join(surv_data5, by = c("ranid", "IDTYPE")) 
+  full_join(surv_data5, by = c("ranid", "IDTYPE")) %>% 
+  select(IDTYPE, ranid, CVDDEATH, CHDDEATH, stroke, EVENT, DATE)
+summary(surv_data_total)
+str(surv_data_total)
+
+surv_data_total$stroke <- as.factor(surv_data_total$stroke)
+surv_data_total$CVDDEATH <- as.factor(surv_data_total$CVDDEATH)
+surv_data_total$CHDDEATH <- as.factor(surv_data_total$CHDDEATH)
+
+str(surv_data_total)
 
 ```
 
 
+### EDA
+```{r}
+all_data_EDA <- all_data2022 %>% 
+  select(IDTYPE, ranid, age, bmi, H393, H399, aspirin, sex, EDATE1)
+
+all_data_2016 <- all_data2022 %>% 
+  full_join(surv_data6, by = c("IDTYPE", "ranid")) %>% 
+  select(IDTYPE, ranid, age, bmi, H393, H399, aspirin, sex, DATE, EDATE1) %>% 
+  mutate(numdays = (EDATE1 - DATE))
+
+all_data_EDA_summary <- all_data_EDA %>% 
+  group_by(sex, aspirin) %>% 
+  summarize(avg_weight = mean(H393), avg_height = mean(H399), ave_age = mean(age), num_aspirin = n())
+```
+
+
+### KM Curve
+```{r}
+fit <- survfit(Surv(all_data_2016$numdays) ~ 1)
+ggsurvplot(fit, data = all_data_2016)
+```
 
 
 
