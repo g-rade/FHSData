@@ -1,0 +1,21 @@
+---
+title: "FHS_Formatting"
+author: "Grace Rade"
+date: "6/28/2022"
+output: html_document
+---
+```{r}
+library(tidyr)
+library(haven)
+
+soe <- read_dta("FHS 2154 - datasets/dr281_vr_soe_2016_a_1073s.dta")
+all_data <- read_sas('alldata2022.sas7bdat copy')
+survdth <- read_dta("FHS 2154 - datasets/dr281_vr_survdth_2014_a_1025s.dta")
+```
+
+```{r}
+all_data2 <- all_data %>% 
+  inner_join(soe, by = c("IDTYPE", "ranid")) %>% 
+  inner_join(survdth, by = c("IDTYPE", "ranid"))
+```
+
