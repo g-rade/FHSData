@@ -1,0 +1,444 @@
+libname dir 'Z:\FHS 2154 - datasets';
+libname dirs 'Z:\SSK analysis Final';
+
+/* macro for comparing dta files to SAS datasets */
+
+%macro import(indta,insas,check);
+proc import out=&check datafile = &indta; 
+run;
+
+proc sort data=&insas out=tempsas;
+  by ranid;
+  run;
+
+proc sort data=&check;
+  by ranid;
+  run;
+
+proc compare base=tempsas compare=&check crit = 0.1;
+  id ranid;
+
+  *ods output o1 = comparesummary;
+  run;
+%mend;
+
+
+%macro import1(indta,insas,check);
+proc import out=&check datafile = &indta; 
+run;
+
+proc sort data=&insas out=tempsas;
+  by ranid event date;
+  run;
+
+proc sort data=&check;
+  by ranid event date;
+  run;
+
+proc compare base=tempsas compare=&check crit = 0.1;
+  id ranid event date;
+
+  *ods output o1 = comparesummary;
+  run;
+%mend;
+
+
+%macro import2(indta,insas,check);
+proc import out=&check datafile = &indta; 
+run;
+
+proc sort data=&insas out=tempsas;
+  by ranid event1 edate1;
+  run;
+
+proc sort data=&check;
+  by ranid event1 edate1;
+  run;
+
+proc compare base=tempsas compare=&check crit = 0.1;
+  id ranid event1 edate1;
+
+  *ods output o1 = comparesummary;
+  run;
+%mend;
+
+proc format;
+  value h010f 0 = "No Aspirin Use"
+              1 = "Aspirin Use";
+  value rhi  1 = "Endothelial Dysfunction"
+             0 = "Normal Endothelial Function";
+  value yesno 0 = "No"
+		      1 = "Yes";
+  value lvef2cat 0 = ">= 50"
+	               1 = "< 50"
+				   ;
+   value lvef2cat55f 0 = ">= 55"
+	                 1 = "< 55"
+				   ;
+  value lvef3cat 1 = "< 30"
+	             2 = ">=30 to <= 55"
+				 3 = "> 55";
+				   ;
+  value cat8f 1 = "ASA CHF EF < 50"
+        2 = "ASA CHF EF >= 50"
+		3 = "ASA NO CHF EF < 50"
+		4 = "ASA NO CHF EF >= 50"
+		5 = "No ASA CHF EF < 50"
+        6 = "No ASA CHF EF >= 50"
+		7 = "No ASA NO CHF EF < 50"
+		8 = "No ASA NO CHF EF >= 50"
+        ;
+   
+   value cat3f 1 = "CHF EF < 50"
+        2 = "CHF EF >= 50"
+		3 = "NO CHF EF >= 50"
+        ;
+   value sexf 1 = " Male"
+              2 = "Female";
+     value chff   0 = "No"
+                1 = "Yes";
+  invalue uefnum "EF >= 50, UTXB <= Median" = 1
+                 "EF >= 50, UTXB > Median" = 2
+                 "EF < 50, UTXB <= Median" = 3
+                 "EF < 50, UTXB > Median" = 4;
+  value utxbeff 1 = "EF >= 50, UTXB <= Median"
+                2 = "EF >= 50, UTXB > Median"
+				3 = "EF < 50, UTXB <= Median"
+				4 = "EF < 50, UTXB > Median";
+  invalue uchfnum "EF >= 50, No CHF BL, UTXB <= Median" = 1
+                "EF >= 50, No CHF BL,  UTXB > Median" = 2
+                "EF >= 50, CHF BL, UTXB <= Median" = 3
+				"EF >= 50, CHF BL, UTXB > Median" = 4;
+   value utxbchff 1 = "EF >= 50, No CHF BL, UTXB <= Median"
+                  2 = "EF >= 50, No CHF BL,  UTXB > Median"
+				  3 = "EF >= 50, CHF BL, UTXB <= Median"
+				  4 = "EF >= 50, CHF BL, UTXB > Median"; 
+   value q4f 1 = "1st quartile"
+             2 = "2nd quartile"
+             3 = "3rd quartile"
+             4 = "4th quartile";
+     value q4fn 1 = "1st quartile"
+             2 = "2nd quartile"
+             3 = "3rd quartile"
+             4 = " 4th quartile";
+value q5f 1 = "1st quintile"
+             2 = " 2nd quintile"
+             3 = " 3rd quintile"
+             4 = " 4th quintile"
+             5 = " 5th quintile";
+
+value qeff 1 = "EF >= 50, UTXB <= Median"
+                2 = " EF >= 50, UTXB > Median"
+				3 = " EF < 50, UTXB <= Median"
+				4 = " EF < 50, UTXB > Median";
+
+value cause 0 = "Censored"
+            1 = "CHD/CVD/CVA"
+			2 = "Cancer"
+			3 = "Other"
+			4 = "Unknown";
+
+value dose 1 = "<= 567 mg/wk"
+	           2 = "> 567 mg/wk";
+    value race2f 1 = "White"
+	             2 = "Non-white";
+    value race3f 1 = "White" 
+	             2 = "Black"
+                 3 = "Other";
+    value ethnic 1 = "Hispanic or Latino"
+                 2 = "Not Hispanic or Latino";
+	value smoke0f 0 = "Never"
+	              1 = "Current"
+				  2 = "Former";
+    value smoke 0 = "Not recently or at all"
+	            1 = "Past Yr but not past mth"
+				2 = "Past Mth";
+	value sex 1 = "Male"
+	          2 = "Female";
+    value smoke    0 = "Not recently or at all"
+	            1 = " Past Yr but not past mth"
+				2 = " Past Mth";
+    value ynnew 0 = "No"
+                1 = " Yes";
+  value medianf 0 = " <= median"
+                1 = "> median";
+  value medyn   0 = "<= median"
+                1 = " > median";
+  value ycut    0 = " <= Youden Cut"
+                1 = "> Youden Cut";
+   value ycutf 0 ='<= Youden Cut'
+              1 = ' > Youden Cut';
+  value asaf    0 = "No"
+                1 = " Yes";
+  value q2u 0 = "Q1-Q3"
+            1 = " Q4";
+  
+  value currsmk 0 = 'Not Current Smoker'
+                1 = 'Current Smoker';
+  value comb 0 = 'Q1_Q3 or <= median'
+             1 = ' Q4 or > median';
+  value ualb 1 = " < 30"
+             2 = "30-300"
+			 3 = " > 300";
+  value topof 140 = 'Lip' 
+141 = 'Tongue'
+142 = 'Major salivary gland'
+143 = 'Gum'
+144 = 'Floor of mouth'
+145 = 'Other and unspecified parts of mouth'
+146 = 'Oropharynx'
+148 = 'Hypopharynx'
+149 = 'Pharynx, Nasopharynx and ill-defined sites in lip, oral cavity and pharynx'
+150 = 'Esophagus'
+151 = 'Stomach'
+152 = 'Small intestine'
+153 = 'Colon'
+154 = 'Rectum'
+173 = 'Skin' 
+174 = 'Female breast'
+155 = 'Liver and intrahepatic bile ducts'
+156 = 'Gallbladder and extrahepatic bile ducts'
+157 = 'Pancreas'
+158 = 'Retroperitoneum and peritoneum'
+160 = 'Nasal cavities, accessory sinuses, middle ear and inner ear'
+161 = 'Larynx'
+162 = 'Trachea bronchus, and lung'
+163 = 'Pleura'
+169 = 'Hematopoietic and reticuloendothelial systems'
+170 = 'Bones, joints and articular cartilage'
+171 = 'Connective, subcutaneous and other soft tissues'
+175 = 'Male breast (excludes skin of breast)'
+179 = 'Uterus, not otherwise specified'
+180 = 'Cervix uteri'
+181 = 'Placenta'
+182 = 'Corpus uteri or endometrium'
+183 = 'Ovary, fallopian tube and broad ligament'
+184 = 'Other and unspecified female genital organs'
+185 = 'Prostate gland'
+186 = 'Testis'
+187 = 'Penis and other male genital organs'
+188 = 'Urinary bladder'
+189 = 'Kidney and other urinary organs'
+190 = 'Eye and lacrimal gland'
+191 = 'Brain'
+193 = 'Thyroid gland'
+195 = 'Other ill-defined sites'
+196 = 'Lymph nodes'
+199 = 'Unknown';
+
+value toposubf 1 = 'Skin'
+2 = 'Lung'
+3 = 'Brain'
+4 = 'Musckulosketal'
+5 = 'Upper GI'
+6 = 'Lower GI'
+7 = 'Hepatobiliary'
+8 = 'Female Breast'
+9 = 'Female Reproductive'
+10 = 'Blood and Lymphoid'
+11 = 'Genitourinary'
+12 = 'Glandular'
+13 = 'Prostate'
+14 = 'Unknown'
+15 = 'Other ill-defined sites';
+
+value morpf 8000 = 'Neoplasm'
+8010 = 'Epithelial tumor, Carcinoma NOS, EPITHELIAL NEOPLASMS, Carcinomatosis'
+8012 = 'Large cell carcinoma' 
+8033 = 'Pseudosarcomatous carcinoma'
+8041 = 'Small cell carcinoma, NOS'
+8046 = 'Non-small cell carcinoma'
+8050 = 'Papilloma, NOS,	SQUAMOUS CELL NEOPLASMS, Papillary carcinoma'
+8070 = 'Squamous cell carcinoma in situ'
+8071 = 'Squamous cell carcinoma, keratinizing'
+8072 = 'Squamous cell carcinoma, large cell, nonkeratinizing'
+8073 = 'Squamous cell carcinoma, small cell, nonkeratinizing'
+8076 = 'Squamous cell carcinoma in situ with questionable stromal invasion, Squamous cell carcinoma, microinvasive'
+8081 = 'Bowen disease'
+8090 = 'Basal cell tumor, Basal cell carcinoma'
+8091 = 'Multifocal superficial basal cell carcinoma'
+8094 = 'Basosquamous carcinoma'
+8120 = 'Transitional cell papilloma, Urothelial papilloma, NOS,	Transitional cell carcinoma in situ, Transitional cell carcinoma, NOS'
+8077 = 'Squamous intraepithelial neoplasia,Cervical intraepithelial neoplasia,Vaginal intraepithelial neoplasia, 
+Vulvar intraepithelial neoplasia, Anal intraepithelial neoplasia'
+8130 = 'Papillary transitional cell carcinoma'
+8140 = 'Adenoma, NOS, Atypical adenoma,	Adenocarcinoma in situ, NOS, Adenocarcinoma, NOS, Adenocarcinoma, metastatic, NOS'
+8141 = 'Scirrhous adenocarcinoma'
+8148 = 'Glandular intraepithelial neoplasia,Prostatic intraepithelial neoplasia'
+8160 = 'Bile duct adenoma, Cholangiocarcinoma'
+8170 = 'Hepatocellular adenoma,	Hepatocellular carcinoma'
+8162 = 'Klatskin tumor'
+8210 = 'Adenomatous polyp, NOS,	Adenocarcinoma in situ in adenomatous polyp, Adenocarcinoma in adenomatous polyp'
+8211 = 'Tubular adenoma, NOS, Tubular adenocarcinoma'
+8240 = 'Carcinoid tumor of uncertain malignant potential, Carcinoid tumor, NOS'
+8246 = 'Neuroendocrine carcinoma, NOS'
+8250 = 'Pulmonary adenomatosis,	Bronchiolo-alveolar adenocarcinoma'
+8253 = 'Bronchiolo-alveolar carcinoma, mucinous'
+8255 = 'Adenocarcinoma with mixed subtypes'
+8260 = 'Papillary adenoma, NOS,	Papillary adenocarcinoma, NOS'
+8261 = 'Villous adenoma NOS, Adenocarcinoma in situ in villous adenoma,	Adenocarcinoma in villous adenoma'
+8263 = 'Tubulovillous adenoma, NOS,	Adenocarcinoma in situ in tubulovillous adenoma, Adenocarcinoma in tubulovillous adenoma'
+8310 = 'Clear cell adenoma,	Clear cell adenocarcinoma, NOS'
+8312 = 'Renal cell carcinoma, NOS'
+8317 = 'Renal cell carcinoma, chromophobe type'
+8340 = 'Papillary carcinoma, follicular variant'
+8380 = 'Endometrioid adenoma, NOS, Endometrioid adenoma, borderline malignancy, Endometrioid adenocarcinoma, NOS'
+8401 = 'Apocrine adenoma, Apocrine adenocarcinoma'
+8460 = 'Papillary serous cystadenoma, NOS, Papillary serous cystadenocarcinoma'
+8470 = 'Mucinous cystadenoma, NOS, Mucinous cystic tumor with moderate dysplasia, Mucinous cystadenocarcinoma, non-invasive,
+Mucinous cystadenocarcinoma, NOS' 
+8480 = 'Mucinous adenoma, Mucinous adenocarcinoma, Pseudomyxoma peritonei'
+8481 = 'Mucin-producing adenocarcinoma'
+8490 = 'Signet ring cell carcinoma, Metastatic signet ring cell carcinoma'
+8500 = 'Intraductal carcinoma, noninfiltrating, NOS, Infiltrating duct carcinoma, NOS'
+8501 = 'Comedocarcinoma, noninfiltrating, Comedocarcinoma, NOS'
+8503 = 'Intraductal papilloma, Noninfiltrating intraductal papillary adenocarcinoma, Intraductal papillary adenocarcinoma with invasion' 
+8510 = 'Medullary carcinoma, NOS'
+8520 = 'Lobular carcinoma in situ. NOS, Lobular carcinoma, NOS'
+8521 = 'Infiltrating ductular carcinoma'
+8522 = 'Intraductal carcinoma and lobular carcinoma in situ'
+8550 = 'Acinar cell adenoma, Acinar cell tumor, Acinar cell carcinoma'
+8560 = 'Mixed squamous cell and glandular pailloma,	Adenosquamous carcinoma'
+8720 = 'Pigmented nevus, NOS, Melanoma in situ, Malignant melanoma, NOS'
+8721 = 'Nodular melanoma'
+8740 = 'Junctional nevus, NOS, Malignant melanoma in junctional nevus'
+8742 = 'Lentigo maligna, Lentigo maligna melanoma'
+8743 = 'Superficial spreading melanoma'
+8772 = 'Spindle cell nevus,	Spindle cell melanoma, NOS'
+8800 = 'Soft tissue tumor, benign, Sarcoma, NOS, Sarcomatosis, NOS'
+8852 = 'Fibromyxolipoma, Myxoid liposarcoma'
+8858 = 'Dedifferentiated liposarcoma'
+8940 = 'Pleomorphic adenoma, Mixed tumor, malignant, NOS'
+8980 = 'Carcinosarcoma, NOS'
+9050 = 'Mesothelioma, benign, Mesothelioma, malignant'
+9052 = 'Epithelioid mesothelioma, benign, Epithelioid mesothelioma, malignant'
+9062 = 'Seminoma, anaplastic'
+9064 = 'Intratubular malignant germ cells, Germinoma'
+9081 = 'Teratocarcinoma'
+9220 = 'Chondroma, NOS, Chondromatosis, NOS,Chondrosarcoma, NOS' 
+9401 = 'Astrocytoma, anaplastic'
+9440 = 'Glioblastoma, NOS'
+9470 = 'Medulloblastoma, NOS'
+9590 = 'Malignant lymphoma, NOS'
+9591 = 'Malignant lymphoma, non-Hodgkin, NOS'
+9652 = 'Hodgkin lymphoma, mixed cellularity, NOS'
+9663 = 'Hodgkin lymphoma, nodular sclerosis, NOS'
+9670 = 'Malignant lymphoma, small B lymphocytic, NOS'
+9673 = 'Mantle cell lymphoma'
+9680 = 'Malignant lymphoma, large B-cell, diffuse or malignant lymphoma, large cell'
+9690 = 'Follicular lymphoma, NOS'
+9691 = 'Follicular lymphoma, grade 2'
+9695 = 'Follicular lymphoma, grade 1'
+9698 = 'Follicular lymphoma, grade 3'
+9699 = 'Marginal zone B-cell lymphoma, NOS'
+9700 = 'Mycosis fungoides'
+
+9731 = 'Plasmacytoma, NOS'
+9732 = 'Multiple myeloma'
+9761 = 'Waldenstrom macroglobulinemia'
+9823 = 'B-cell chronic lymphocytic leukemia/small lymphocytic lymphoma'
+9861 = 'Acute myeloid leukemia, NOS'
+9863 = 'Chronic myeloid leukemia, NOS'
+9940 = 'Hairy cell leukemia '
+/*
+9590-9769 - Hodgkin's and non-Hodgkin lymphomas
+9590-9596 - Malignant lymphomas, NOS or diffuse
+9650-9667 - Hodgkin's lymphoma
+9670-9729 - Non-Hodgkin's lymphomas
+9670-9699 - Mature B-cell lymphomas
+*/
+
+/*
+9700-9719 - Mature T-cell and NK-cell lymphomas
+9727-9729 - Precursor cell lymohoblastic lymphomas
+9731-9734 - Plasma cell tumors
+9740-9742 - Mast cell tumors
+9750-9758 - Neoplasms of histiocytes and accessory lymphoid cells
+9760-9769 - Immunoproliferative diseases
+*/
+9872 = 'Acute myeloid leukemia, minimal differentiation'
+9895 = 'Acute myeloid leukemia with multilineage dysplasia'
+9987 = 'Therapy related myelodysplastic syndrome'
+9989 = 'Myelodysplastic syndrome, NOS';
+
+value histsubf 1 = 'Carcinoma'
+               2 = 'Sarcoma'
+			   3 = 'Myeloma/Leukemia/Lymphoma'
+			   4 = 'Mixed'
+			   5 = 'Neuroendocrine/Melenoma';
+
+value typef 1 = 'No Cancer'
+            2 = 'Non Melanotic Skin Cancer Only'
+			3 = 'Other Cancer'
+			4 = 'Both Melatonic and Other Cancers';
+value cstartf 1 = 'Before Index Visit'
+              2 = 'After index visit';
+value h010n 0 = "No Aspirin"
+              1 = "Aspirin";
+value q2n  0 = "1st to 3rd Quartile"
+             1 = "4th Quartile";
+value mediann  0 = "1st and 2nd Quartile"
+                 1 = "3rd and 4th Quartile"; 
+value cat2f 0 = 'Normal (0)'
+              1 = 'Abnormal (> 0)';
+value cat2_1f 0 = 'Normal (0-1)'
+              1 = 'Abnormal (2)';
+value cat2abn 0 = 'Normal (0-1)'
+              1 = 'Abnormal (2-4)';
+
+  value longcat15f 0 = 'Normal (< -15)'
+                   1 = 'Elevated (>= -15)';
+ value longcat16f 0 = 'Normal (< -16)'
+                   1 = 'Elevated (>= -16)';
+  value longcat18f 0 = 'Normal (< -18)'
+                   1 = 'Elevated (>= -18)';
+  value q2_strain15f 1 = 'TXB Q1-3 Strain 15 - Normal'
+                     2 = 'TXB Q4 Strain 15 - Normal'
+				     3 = 'TXB Q1-3 Strain 15 - Elevated'
+				     4 = 'TXB Q4 Strain 15 - Elevated';
+  value q2_strainm15f 1 = 'TXB Q1-3 Strain 15 - Normal'
+                      2 = ' TXB Q4 Strain 15 - Normal'
+				      3 = ' TXB Q1-3 Strain 15 - Elevated'
+				      4 = ' TXB Q4 Strain 15 - Elevated';
+ value q2_strain18f 1 = 'TXB Q1-3 Strain 18 - Normal'
+                     2 = 'TXB Q4 Strain 18 - Normal'
+				     3 = 'TXB Q1-3 Strain 18 - Elevated'
+				     4 = 'TXB Q4 Strain 18 - Elevated';
+  value q2_strainm18f 1 = 'TXB Q1-3 Strain 18 - Normal'
+                      2 = ' TXB Q4 Strain 18 - Normal'
+				      3 = ' TXB Q1-3 Strain 18 - Elevated'
+				      4 = ' TXB Q4 Strain 18 - Elevated';
+  value ef_strain18f 1 = 'EF >= 50 Strain 18 - Normal'
+                     2 = 'EF < 50 Strain 18 - Normal'
+				     3 = 'EF >= 50 Strain 18 - Elevated'
+				     4 = 'EF < 50 Strain 18 - Elevated';
+  value ef_strainm18f 1 = 'EF >= 50 Strain - Normal'
+                      2 = ' EF < 50 Strain - Normal'
+				      3 = ' EF >= 50 Strain - Elevated'
+				      4 = ' EF < 50 Strain - Elevated';
+  value q2_ef 1 = 'TXB Q1-3 EF >= 50'
+              2 = 'TXB Q1-3 EF < 50'
+			  3 = 'TXB Q4 EF >= 50'
+			  4 = 'TXB Q4 EF < 50';
+  value q2_efm 1 = 'TXB Q1-3 EF >= 50'
+               2 = ' TXB Q1-3 EF < 50'
+			   3 = ' TXB Q4 EF >= 50'
+			   4 = ' TXB Q4 EF < 50';
+
+  value stenf 0 = 'none or trivial'
+              1 = 'mild, moderate or severe';
+
+  value regurgcat 0 = 'non or trivial 0-1' 
+                  1 = 'mild to severe 2-5';
+  value regurg1cat 0 = 'none (0)' 
+                   1 = ' present (2)';
+  value mibefore 0 = "No MI"
+                 1 = "MI Before_At CHF_CVD"
+				   2 = "MI No CHF_CVD"
+				   3 = "MI same Date as CHF_CVD";
+  value censor 0 = "Event of Interest"
+	             1 = "Censored"; 
+run;    
+
+
+

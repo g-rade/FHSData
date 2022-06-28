@@ -1,0 +1,65 @@
+
+/* event data - subset for deaths and date of death*/
+data datesfmsoe;
+  set dir.dr281_vr_soe_2020_a_1340s;
+  keep ranid event date;
+  rename event = addevent date = datedth;
+  if event in(20,21,22,23,24,25,26,27,28,29);
+  run;
+
+  proc sort data=datesfmsoe nodupkey;
+    by ranid;
+	run;
+
+/* last contact data */
+data dthsurv;
+  set dir.dr281_vr_survdth_2019_a_1337s;
+  keep ranid lastcon lastsoe;
+run;
+
+  proc sort data=dthsurv nodupkey;
+    by ranid;
+	run;
+
+	/* Any cause Mortality */
+data survival;
+  merge dirs.alldata2022(in=in1 keep=ranid h010 ratio examdate3_8) datesfmsoe(in=in2) dthsurv;
+  by ranid;
+  if in1;
+
+  
+    /* categorize UTXB by cutpoint */
+
+  cutpoint = .;
+
+  if h010 = 0 then do;
+  	if . < ratio <= 6500 then cutpoint = 0;
+	  else if ratio > 6500 then cutpoint = 1;
+  end;
+   
+  if h010 = 1 then do;
+	if . < ratio <= 1700 then cutpoint = 0;
+	  else if ratio > 1700 then cutpoint = 1;
+    end;
+  
+  censor = .;
+  status = .;
+  days = .;
+
+
+  /* censor=1 if alive (date = last contact) and = 0 if death*/
+
+  if addevent in(20,21,22,23,24,25,26,27,28,29) then do;
+    days = datedth - examdate3_8;
+    censor = 0;
+	status = 1;
+	end;
+
+  if addevent = . then do;
+    days = lastcon - examdate3_8;
+	censor = 1;
+	status = 0;
+	end;
+
+	format cutpoint ycutf.;
+	run;
