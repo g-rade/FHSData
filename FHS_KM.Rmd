@@ -18,7 +18,7 @@ last_contact <- read_dta("FHS 2154 - datasets/dr281_vr_survdth_2014_a_1025s.dta"
 
 ## CVD Data
 ```{r}
-fit1 <- surv_fit(Surv(last_contact$DATEDTH)~1, data = last_contact)
+fit1 <- surv_fit(Surv(0, 5000)~1, data = last_contact)
 ggsurvplot(fit1, data = last_contact)
 ```
 
