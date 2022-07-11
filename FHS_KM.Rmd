@@ -13,12 +13,18 @@ library(haven)
 
 all_data <- read_sas('alldata2022.sas7bdat copy')
 last_contact <- read_dta("FHS 2154 - datasets/dr281_vr_survdth_2014_a_1025s.dta")
-
+all_data2 <- all_data %>% 
+  inner_join(last_contact, by = c("IDTYPE", "ranid"))
+all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH[is.na(all_data2$LASTCON)] ## replacing values of last contact with date of death when applicible
+  
 ```
 
-## CVD Data
+## All Cause Plot 
+
+
 ```{r}
-fit1 <- surv_fit(Surv(0, 5000)~1, data = last_contact)
-ggsurvplot(fit1, data = last_contact)
+fit1 <- surv_fit(formula = Surv(LASTCON)~1, data = all_data2)
+fit1
+ggsurvplot(fit1, all_data2)
 ```
 

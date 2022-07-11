@@ -1,0 +1,53 @@
+---
+title: "FHS_RMST.Rmd"
+author: "Grace Rade"
+date: "7/5/2022"
+output: pdf_document
+---
+```{r}
+library(survival)
+library(tidyverse)
+library(rio)
+library(survminer)
+library(haven)
+library(survRM2)
+
+
+all_data <- read_sas('alldata2022.sas7bdat copy')
+last_contact <- read_dta("FHS 2154 - datasets/dr281_vr_survdth_2014_a_1025s.dta")
+all_data2 <- all_data %>% 
+  inner_join(last_contact, by = c("IDTYPE", "ranid"))
+all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH[is.na(all_data2$LASTCON)] ## replacing values of last contact with date of death when applicable
+
+all_data2 <- all_data2 %>% 
+  mutate(dead = if_else(LASTCON > 5000, 1, 0)) ## alive = 1, dead = 0
+  
+
+all_data2$LASTCON[all_data2$LASTCON > 5000] <- 5000
+
+
+quantile(all_data2$TXB2_M)
+data_rmst <- all_data2 %>% 
+  select(IDTYPE, ranid, TXB2_M, TXB2_M_I, H010, EVENT, chfyn, chfdays, chfdate, afibyn, afibdate, afibdays, miyn, midate, CVDDEATH, CHDDEATH, DATEDTH, LASTCON, dead) %>% 
+  mutate(TXB2_quart = if_else(TXB2_M >= 4303.825, "Q4", NULL))
+
+data_rmst$TXB2_quart[data_rmst$TXB2_M < 4303.825] <- "Q3"
+data_rmst$TXB2_quart[data_rmst$TXB2_M < 1997.950] <- "Q2"
+data_rmst$TXB2_quart[data_rmst$TXB2_M < 919.375] <- "Q1"
+
+data_rmst <- data_rmst %>% 
+  mutate(TXB2_quant = if_else(TXB2_M >= 4303.825, "Q4", "Q1-Q3"), death_cause = if_else())
+```
+
+H010:
+
+0 = no aspirin use
+
+1 = aspirin use
+## RMST
+```{r}
+model1 <- survfit(Surv(chfdays) ~ H010, data = all_data2)
+
+ggsurvplot(model1, data = all_data2)
+```
+
