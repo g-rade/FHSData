@@ -63,5 +63,10 @@ H010:
 model1 <- survfit(Surv(chfdays) ~ H010, data = all_data2)
 
 ggsurvplot(model1, data = all_data2)
+
+# trying to get R to calculate RMST is not something I've been successful at, disregard this curve
+
+# the bump at the beginning of both curves confuses me
 ```
+
 
