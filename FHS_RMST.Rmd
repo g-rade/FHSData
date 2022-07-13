@@ -48,6 +48,7 @@ data_rmst$events[data_rmst$chfyn == 0] <- 3
 data_rmst$events[data_rmst$LASTCON == 5000] <- 0
 
 export(data_rmst, "rmst_data.csv")
+export(all_data2, "all_data.csv")
 ## creating a new dataset with thromboxane quartile variables (one with categories of all 4 quartiles, one with categories 'q4' or 'q1-q3'), and a event categorical variable (assumed that in the cvdyn/chdyn variables that occurrence is categorized as 1) 
 
 ## as far as i can tell, there is no cancer variable
