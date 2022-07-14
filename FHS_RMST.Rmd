@@ -16,10 +16,13 @@ library(survRM2)
 all_data <- read_sas('alldata2022.sas7bdat copy')
 cvd_status <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta") %>% select(IDTYPE, ranid, cvd, chd, chf)
 last_contact <- read_dta("FHS 2154 - datasets/dr281_vr_survdth_2014_a_1025s.dta")
+event_data <- read_dta("FHS 2154 - datasets/dr281_vr_soe_2016_a_1073s.dta") %>% 
+  select(IDTYPE, ranid, EVENT, DATE)
 all_data2 <- all_data %>% 
   inner_join(last_contact, by = c("IDTYPE", "ranid")) 
 all_data2 <- all_data2 %>% 
-  inner_join(cvd_status, by = c("IDTYPE", "ranid"))
+  inner_join(event_data, by = c("IDTYPE", "ranid"))
+
 
 all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH[is.na(all_data2$LASTCON)] ## replacing values of last contact with date of death when applicable
 
@@ -29,10 +32,15 @@ all_data2 <- all_data2 %>%
 
 all_data2$LASTCON[all_data2$LASTCON > 5000] <- 5000
 
+all_data2 <- all_data2 %>% 
+  mutate(censor = if_else(LASTCON >= 5000, 1, 0)) %>% 
+  mutate(days = if_else(censor == 0, DATEDTH - examdate3_8, LASTCON - examdate3_8))
+
 
 quantile(all_data2$TXB2_M) ## finding the quantiles for thromboxane levels
+
 data_rmst <- all_data2 %>% 
-  select(IDTYPE, ranid, TXB2_M, TXB2_M_I, H010, EVENT, chfyn, chfdays, chfdate, afibyn, afibdate, afibdays, miyn, midate, CVDDEATH, CHDDEATH, DATEDTH, LASTCON, dead, cvd, chd, chf) %>% 
+  select(IDTYPE, ranid, TXB2_M, TXB2_M_I, H010, chfyn, chfdays, chfdate, afibyn, afibdate, afibdays, miyn, midate, CVDDEATH, CHDDEATH, DATEDTH, LASTCON, dead, DATE, days, censor) %>% 
   mutate(TXB2_quart = if_else(TXB2_M >= 4303.825, "Q4", NULL))
 
 data_rmst$TXB2_quart[data_rmst$TXB2_M < 4303.825] <- "Q3"
