@@ -60,6 +60,7 @@ all_data3 <- all_data %>%
   inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
   mutate(TXB2_quart = if_else(TXB2_M >= 4303.825, "Q4", NULL))
 
+## txb2 quartiles
 all_data3$TXB2_quart[all_data3$TXB2_M < 4303.825] <- "Q3"
 all_data3$TXB2_quart[all_data3$TXB2_M < 1997.950] <- "Q2"
 all_data3$TXB2_quart[all_data3$TXB2_M < 919.375] <- "Q1"
@@ -69,9 +70,52 @@ all_data3 <- all_data3 %>%
   mutate(days = if_else(is.na(DATEDTH), LASTCON - examdate3_8, DATEDTH- examdate3_8)) %>% 
   mutate(censor = if_else(is.na(DATEDTH), 1, 0))
 
+## calculate the days lived after first exam (like SAS program), censor variable 
+
+
+## all_data4 corrects the TXB2 quartiles by aspirin groups
+all_data4 <- all_data %>% 
+  inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
+  mutate(days = if_else(is.na(DATEDTH), LASTCON - examdate3_8, DATEDTH- examdate3_8)) 
+
+## find the quartiles for each aspirin group
+group_by(all_data4, H010) %>% 
+  summarize(quart25 = quantile(TXB2_M, probs = 0.25), quart50 = quantile(TXB2_M, probs = 0.5), quart75 = quantile(TXB2_M, probs = 0.75))
+ 
+## TXB2_M quartiles for aspirin = 0 group (no use) 
+all_data4_aspirin0 <- all_data4 %>% 
+  filter(H010 == 0) %>% 
+  mutate(TXB2_quart = if_else(TXB2_M >= 5823, "Q4", NULL))
+
+all_data4_aspirin0$TXB2_quart[all_data4_aspirin0$TXB2_M < 5823] <- "Q3"
+all_data4_aspirin0$TXB2_quart[all_data4_aspirin0$TXB2_M < 3639] <- "Q2"
+all_data4_aspirin0$TXB2_quart[all_data4_aspirin0$TXB2_M < 1698] <- "Q1"
+
+
+## TXB2_M quartiles for aspirin = 1 group (use)
+all_data4_aspirin1 <- all_data4 %>% 
+  filter(H010 == 1) %>% 
+  mutate(TXB2_quart = if_else(TXB2_M >= 1952, "Q4", NULL))
+
+all_data4_aspirin1$TXB2_quart[all_data4_aspirin1$TXB2_M < 1952] <- "Q3"
+all_data4_aspirin1$TXB2_quart[all_data4_aspirin1$TXB2_M < 1135] <- "Q2"
+all_data4_aspirin1$TXB2_quart[all_data4_aspirin1$TXB2_M < 622] <- "Q1"
+
+
+## rejoin the grouped datasets together by all variables
+all_data4 <- all_data4_aspirin0 %>% 
+  full_join(all_data4_aspirin1) 
+
+## censor,  and days variables
+all_data4 <- all_data4 %>% 
+  mutate(TXB2_quant = if_else(TXB2_quart == "Q4", "Q4", "Q1-Q3")) %>% 
+  mutate(days = if_else(is.na(DATEDTH), LASTCON - examdate3_8, DATEDTH- examdate3_8)) %>% 
+  mutate(censor = if_else(is.na(DATEDTH), 1, 0)) 
+
 export(data_rmst, "rmst_data.csv")
 export(all_data2, "all_data.csv")
 export(all_data3, "data_all.csv")
+export(all_data4, "data4.csv")
 ## creating a new dataset with thromboxane quartile variables (one with categories of all 4 quartiles, one with categories 'q4' or 'q1-q3'), and a event categorical variable (assumed that in the cvdyn/chdyn variables that occurrence is categorized as 1) 
 
 ## as far as i can tell, there is no cancer variable
