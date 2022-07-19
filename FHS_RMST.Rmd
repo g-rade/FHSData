@@ -56,7 +56,8 @@ data_rmst$events[data_rmst$chfyn == 0] <- 3
 data_rmst$events[data_rmst$LASTCON == 5000] <- 0
 
 
-all_data3 <- all_data2 %>% 
+all_data3 <- all_data %>% 
+  inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
   mutate(TXB2_quart = if_else(TXB2_M >= 4303.825, "Q4", NULL))
 
 all_data3$TXB2_quart[all_data3$TXB2_M < 4303.825] <- "Q3"
@@ -65,7 +66,8 @@ all_data3$TXB2_quart[all_data3$TXB2_M < 919.375] <- "Q1"
 
 all_data3 <- all_data3 %>% 
   mutate(TXB2_quant = if_else(TXB2_M >= 4303.825, "Q4", "Q1-Q3"), events = if_else(CHDDEATH == 0, 1, 0)) %>% 
-  rename(aspirin_use = H010)
+  mutate(days = if_else(is.na(DATEDTH), LASTCON - examdate3_8, DATEDTH- examdate3_8)) %>% 
+  mutate(censor = if_else(is.na(DATEDTH), 1, 0))
 
 export(data_rmst, "rmst_data.csv")
 export(all_data2, "all_data.csv")
