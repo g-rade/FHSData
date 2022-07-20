@@ -106,11 +106,18 @@ all_data4_aspirin1$TXB2_quart[all_data4_aspirin1$TXB2_M < 622] <- "Q1"
 all_data4 <- all_data4_aspirin0 %>% 
   full_join(all_data4_aspirin1) 
 
+<<<<<<< HEAD
 ## censor,  and days variables
 all_data4 <- all_data4 %>% 
   mutate(TXB2_quant = if_else(TXB2_quart == "Q4", "Q4", "Q1-Q3")) %>% 
   mutate(days = if_else(is.na(DATEDTH), LASTCON - examdate3_8, DATEDTH- examdate3_8)) %>% 
   mutate(censor = if_else(is.na(DATEDTH), 1, 0)) 
+=======
+## censor and days variables
+all_data4 <- all_data4 %>% 
+  mutate(days = if_else(is.na(DATEDTH), LASTCON - examdate3_8, DATEDTH- examdate3_8)) %>% 
+  mutate(censor = if_else(is.na(DATEDTH), 1, 0))
+>>>>>>> 1c86eba7b1bcfe7d84e12406e478b2dfeeaa69bd
 
 export(data_rmst, "rmst_data.csv")
 export(all_data2, "all_data.csv")
