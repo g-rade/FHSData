@@ -15,7 +15,7 @@ library(survRM2)
 
 all_data <- read_sas('alldata2022.sas7bdat copy')
 cvd_status <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta") %>% select(IDTYPE, ranid, cvd, chd, chf)
-last_contact <- read_dta('FHS 2154 - datasets/dr281_vr_survdth_2018_a_1268s.sas7bdat copy')
+last_contact <- read_sas('dr218_vr_survdth_2018.sas7bdat copy')
 event_data <- read_dta("FHS 2154 - datasets/dr281_vr_soe_2016_a_1073s.dta") %>% 
   select(IDTYPE, ranid, EVENT, DATE)
 all_data2 <- all_data %>% 
