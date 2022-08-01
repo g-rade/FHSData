@@ -7,4 +7,8 @@ FHS_EDA: exploratory data analysis on the FHS data (demographics, ect.)
 
 FHS_KM: attempts at Kapelin-Meier plots for the FHS data (some data wrangling)
 
-FHS_RMST: attempts at caluclating RMST for the FHS data, also the wrangling of new data tables from all_data2022, to be exported and loaded into SAS for RMST calculation
+FHS_RMST: attempts at calculating RMST for the FHS data, also the wrangling of new data tables from all_data2022, to be exported and loaded into SAS for RMST calculation
+
+FHS_RMST2: re-wrangling the data sets with the most updated data files
+
+FHS_RMST3: incorporating the 2020 event data
