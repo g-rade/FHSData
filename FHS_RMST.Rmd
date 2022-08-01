@@ -15,13 +15,12 @@ library(survRM2)
 
 all_data <- read_sas('alldata2022.sas7bdat copy')
 cvd_status <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta") %>% select(IDTYPE, ranid, cvd, chd, chf)
-last_contact <- read_sas('dr218_vr_survdth_2018.sas7bdat copy')
+last_contact <-read_dta("FHS 2154 - datasets/dr281_vr_survdth_2014_a_1025s.dta") %>% select(IDTYPE, ranid, DATEDTH, LASTCON)
 event_data <- read_dta("FHS 2154 - datasets/dr281_vr_soe_2016_a_1073s.dta") %>% 
   select(IDTYPE, ranid, EVENT, DATE)
-all_data2 <- all_data %>% 
-  inner_join(last_contact, by = c("IDTYPE", "ranid")) 
+all_data2 <- left_join(all_data, last_contact, by = c("IDTYPE", "ranid")) 
 all_data2 <- all_data2 %>% 
-  inner_join(event_data, by = c("IDTYPE", "ranid"))
+  left_join(event_data, by = c("IDTYPE", "ranid"))
 
 
 all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH[is.na(all_data2$LASTCON)] ## replacing values of last contact with date of death when applicable
