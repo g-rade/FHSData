@@ -1,0 +1,31 @@
+---
+title: "FHS_RMST2.Rmd"
+author: "Grace Rade"
+date: "8/1/2022"
+output: html_document
+---
+```{r}
+library(survival)
+library(tidyverse)
+library(rio)
+library(survminer)
+library(haven)
+library(survRM2)
+
+all_data <- read_sas('alldata2022.sas7bdat copy')
+
+cvd_status <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta") %>% select(IDTYPE, ranid, cvd, chd, chf)
+
+last_contact <-read_sas("datasets_copy/dr281_vr_survdth_2019_a_1337s.sas7bdat") %>% 
+  select(idtype, ranid, DATEDTH, LASTCON) %>% 
+  rename(IDTYPE = idtype)
+
+event_data <- read_sas("datasets_copy/dr281_vr_soe_2020_a_1340s.sas7bdat") %>% 
+  select(idtype, ranid, DATE, EVENT) %>% 
+  rename(IDTYPE = idtype)
+
+all_data2 <- all_data %>% 
+  inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
+  inner_join(event_data, by = c("IDTYPE", "ranid"))
+```
+

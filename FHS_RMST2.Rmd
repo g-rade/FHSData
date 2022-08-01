@@ -36,7 +36,7 @@ all_data2 <- all_data2 %>%
   mutate(dead = if_else(LASTCON > 5000, 1, 0)) ## alive = 1, dead = 0
   
 
-all_data2$LASTCON[all_data2$LASTCON > 5000] <- 5000
+all_data2$LASTCON[all_data2$LASTCON > 5045] <- 5045
 
 all_data2 <- all_data2 %>% 
   mutate(censor = if_else(LASTCON >= 5000, 1, 0)) %>% 
