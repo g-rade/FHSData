@@ -72,8 +72,100 @@ all_data2 <- all_data2_aspirin0 %>%
 # TXB2 quant variable, and number of days til first event (when applicable)
 all_data2 <- all_data2 %>% 
   mutate(TXB2_quant = if_else(TXB2_quart == "Q4", "Q4", "Q1-Q3")) %>% 
-  mutate(event_days = DATE - examdate3_8)
+  mutate(event_days = DATE - examdate3_8) %>% 
+  mutate(event_type = if_else(EVENT.y == 1, "MI", NULL))
 
+## specifying the event type in text (have to repeat b/c EVENT variable twice in the dataset)
+
+all_data2$event_type[all_data2$EVENT.y == 2] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 3] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 4] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 5] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 8] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 9] <- "MI"
+
+all_data2$event_type[all_data2$EVENT.y == 6] <- "Angina"
+all_data2$event_type[all_data2$EVENT.y == 7] <- "Coronary Insufficiency"
+
+all_data2$event_type[all_data2$EVENT.y == 10] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 16] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 17] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 19] <- "CVA"
+
+all_data2_event_type[all_data2$EVENT.y == 11] <- "Atherothrombotic Infarction of Brain"
+
+all_data2$event_type[all_data2$EVENT.y == 12] <- "TIA"
+all_data2$event_type[all_data2$EVENT.y == 18] <- "TIA"
+
+all_data2$event_type[all_data2$EVENT.y == 13] <- "Cerebral Embolism"
+all_data2$event_type[all_data2$EVENT.y == 14] <- "Intracerebral Hemmorhage"
+all_data2$event_type[all_data2$EVENT.y == 15] <- "Subarachnoid Hemmorhage"
+
+all_data2$event_type[all_data2$EVENT.y == 20] <- "Death"
+all_data2$event_type[all_data2$EVENT.y == 28] <- "Death"
+all_data2$event_type[all_data2$EVENT.y == 29] <- "Death"
+
+all_data2$event_type[all_data2$EVENT.y == 21] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 22] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 23] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 24] <- "CHD Death"
+
+all_data2$event_type[all_data2$EVENT.y == 25] <- "CVA Death"
+all_data2$event_type[all_data2$EVENT.y == 13] <- "CVD Death"
+all_data2$event_type[all_data2$EVENT.y == 13] <- "Cancer Death"
+
+all_data2$event_type[all_data2$EVENT.y == 30] <- "IC"
+all_data2$event_type[all_data2$EVENT.y == 31] <- "IC"
+
+all_data2$event_type[all_data2$EVENT.y == 40] <- "CHF"
+all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
+all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
+
+all_data2$event_type[all_data2$EVENT.x == 1] <- "MI"
+all_data2$event_type[all_data2$EVENT.x == 2] <- "MI"
+all_data2$event_type[all_data2$EVENT.x == 3] <- "MI"
+all_data2$event_type[all_data2$EVENT.x == 4] <- "MI"
+all_data2$event_type[all_data2$EVENT.x == 5] <- "MI"
+all_data2$event_type[all_data2$EVENT.x == 8] <- "MI"
+all_data2$event_type[all_data2$EVENT.x == 9] <- "MI"
+
+all_data2$event_type[all_data2$EVENT.x == 6] <- "Angina"
+all_data2$event_type[all_data2$EVENT.x == 7] <- "Coronary Insufficiency"
+
+all_data2$event_type[all_data2$EVENT.x == 10] <- "CVA"
+all_data2$event_type[all_data2$EVENT.x == 16] <- "CVA"
+all_data2$event_type[all_data2$EVENT.x == 17] <- "CVA"
+all_data2$event_type[all_data2$EVENT.x == 19] <- "CVA"
+
+all_data2_event_type[all_data2$EVENT.x == 11] <- "Atherothrombotic Infarction of Brain"
+
+all_data2$event_type[all_data2$EVENT.x == 12] <- "TIA"
+all_data2$event_type[all_data2$EVENT.x == 18] <- "TIA"
+
+all_data2$event_type[all_data2$EVENT.x == 13] <- "Cerebral Embolism"
+all_data2$event_type[all_data2$EVENT.x == 14] <- "Intracerebral Hemmorhage"
+all_data2$event_type[all_data2$EVENT.x == 15] <- "Subarachnoid Hemmorhage"
+
+all_data2$event_type[all_data2$EVENT.x == 20] <- "Death"
+all_data2$event_type[all_data2$EVENT.x == 28] <- "Death"
+all_data2$event_type[all_data2$EVENT.x == 29] <- "Death"
+
+all_data2$event_type[all_data2$EVENT.x == 21] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.x == 22] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.x == 23] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.x == 24] <- "CHD Death"
+
+all_data2$event_type[all_data2$EVENT.x == 25] <- "CVA Death"
+all_data2$event_type[all_data2$EVENT.x == 13] <- "CVD Death"
+all_data2$event_type[all_data2$EVENT.x == 13] <- "Cancer Death"
+
+all_data2$event_type[all_data2$EVENT.x == 30] <- "IC"
+all_data2$event_type[all_data2$EVENT.x == 31] <- "IC"
+
+all_data2$event_type[all_data2$EVENT.x == 40] <- "CHF"
+all_data2$event_type[all_data2$EVENT.x == 41] <- "CHF"
+all_data2$event_type[all_data2$EVENT.x == 49] <- "CHF"
+  
 export(all_data2, "rmst2_data.csv")
 ```
 
