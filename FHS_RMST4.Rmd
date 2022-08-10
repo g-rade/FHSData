@@ -1,0 +1,128 @@
+---
+title: "FHS_RMST4.Rmd"
+author: "Grace Rade"
+date: '2022-08-10'
+output: html_document
+---
+```{r}
+library(survival)
+library(tidyverse)
+library(rio)
+library(survminer)
+library(haven)
+library(survRM2)
+
+all_data <- read_sas('alldata2022.sas7bdat copy')
+
+cvd_status <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta") %>% select(IDTYPE, ranid, cvd, chd, chf)
+
+last_contact <-read_sas("datasets_copy/dr281_vr_survdth_2019_a_1337s.sas7bdat") %>% 
+  select(idtype, ranid, DATEDTH, LASTCON) %>% 
+  rename(IDTYPE = idtype)
+
+event_data <- read_sas("datasets_copy/dr281_vr_soe_2020_a_1340s.sas7bdat") %>% 
+  select(idtype, ranid, DATE, EVENT) %>% 
+  rename(IDTYPE = idtype) %>% 
+  distinct(ranid, .keep_all = TRUE)
+
+all_data2 <- all_data %>% 
+  inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
+  left_join(event_data, by = c("IDTYPE", "ranid"))
+
+all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH[is.na(all_data2$LASTCON)] ## replacing values of last contact with date of death when applicable
+
+# making days variable, lastcontact - examdate3_8, number of days survived
+all_data2 <- all_data2 %>% 
+  mutate(days = LASTCON - examdate3_8) %>% 
+  mutate(censor = if_else(days >= 5045, 1, 0)) %>% 
+  mutate(ratio2 = ratio/egfr)
+
+# find the TXB2 quartiles for each aspirin group
+group_by(all_data2, H010) %>% 
+  summarize(quart25 = quantile(ratio, probs = 0.25), quart50 = quantile(ratio, probs = 0.5), quart75 = quantile(ratio, probs = 0.75)) 
+
+
+# assigning TXB2 quartile groups by asprin use = 0 (no use)
+all_data2_aspirin0 <- all_data2 %>% 
+  filter(H010 == 0) %>% 
+  mutate(TXB2_quart = if_else(ratio >= 6483, "Q4", NULL)) %>% 
+  mutate(youden = if_else(ratio >= 5610, "high", "low")) %>% 
+  mutate(youden2 = ratio2 >= 65, "high", "low")
+
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 6483] <- "Q3"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 4179] <- "Q2"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 2690] <- "Q1"
+
+
+# assigning TXB2 quartile groups by aspirin use = 1 (use)
+all_data2_aspirin1 <- all_data2 %>% 
+  filter(H010 == 1) %>% 
+  mutate(TXB2_quart = if_else(ratio >= 1700, "Q4", NULL)) %>% 
+  mutate(youden = if_else(ratio >= 1300, "high", "low")) %>% 
+  mutate(youden2 = if_else(ratio2 >= 18.6, "high", "low"))
+
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 1700] <- "Q3"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 1147] <- "Q2"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 856] <- "Q1"
+
+# rejoining the datasets
+all_data2 <- all_data2_aspirin0 %>% 
+  full_join(all_data2_aspirin1)
+
+
+# TXB2 quant variable, and number of days til first event (when applicable)
+all_data2 <- all_data2 %>% 
+  mutate(TXB2_quant = if_else(TXB2_quart == "Q4", "Q4", "Q1-Q3")) %>% 
+  mutate(event_days = DATE - examdate3_8) %>% 
+  mutate(event_type = if_else(EVENT.y == 1, "MI", NULL))
+
+## specifying the event type in text (have to repeat b/c EVENT variable twice in the dataset)
+
+all_data2$event_type[all_data2$EVENT.y == 2] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 3] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 4] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 5] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 8] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 9] <- "MI"
+
+all_data2$event_type[all_data2$EVENT.y == 6] <- "Angina"
+all_data2$event_type[all_data2$EVENT.y == 7] <- "Coronary Insufficiency"
+
+all_data2$event_type[all_data2$EVENT.y == 10] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 16] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 17] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 19] <- "CVA"
+
+all_data2_event_type[all_data2$EVENT.y == 11] <- "Atherothrombotic Infarction of Brain"
+
+all_data2$event_type[all_data2$EVENT.y == 12] <- "TIA"
+all_data2$event_type[all_data2$EVENT.y == 18] <- "TIA"
+
+all_data2$event_type[all_data2$EVENT.y == 13] <- "Cerebral Embolism"
+all_data2$event_type[all_data2$EVENT.y == 14] <- "Intracerebral Hemmorhage"
+all_data2$event_type[all_data2$EVENT.y == 15] <- "Subarachnoid Hemmorhage"
+
+all_data2$event_type[all_data2$EVENT.y == 20] <- "Death"
+all_data2$event_type[all_data2$EVENT.y == 28] <- "Death"
+all_data2$event_type[all_data2$EVENT.y == 29] <- "Death"
+
+all_data2$event_type[all_data2$EVENT.y == 21] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 22] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 23] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 24] <- "CHD Death"
+
+all_data2$event_type[all_data2$EVENT.y == 25] <- "CVA Death"
+all_data2$event_type[all_data2$EVENT.y == 13] <- "CVD Death"
+all_data2$event_type[all_data2$EVENT.y == 13] <- "Cancer Death"
+
+all_data2$event_type[all_data2$EVENT.y == 30] <- "IC"
+all_data2$event_type[all_data2$EVENT.y == 31] <- "IC"
+
+all_data2$event_type[all_data2$EVENT.y == 40] <- "CHF"
+all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
+all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
+
+  
+export(all_data2, "rmst_egfr.csv")
+```
+
