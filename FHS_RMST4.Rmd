@@ -47,7 +47,7 @@ all_data2_aspirin0 <- all_data2 %>%
   filter(H010 == 0) %>% 
   mutate(TXB2_quart = if_else(ratio >= 6483, "Q4", NULL)) %>% 
   mutate(youden = if_else(ratio >= 5610, "high", "low")) %>% 
-  mutate(youden2 = ratio2 >= 65, "high", "low")
+  mutate(youden2 = if_else(ratio2 >= 65, "high", "low"))
 
 all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 6483] <- "Q3"
 all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 4179] <- "Q2"
