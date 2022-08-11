@@ -12,3 +12,6 @@ FHS_RMST: attempts at calculating RMST for the FHS data, also the wrangling of n
 FHS_RMST2: re-wrangling the data sets with the most updated data files
 
 FHS_RMST3: incorporating the 2020 event data and 2019 death data, cleaning up the code and getting the dataset to be up to date and correct, rmst2_data.csv
+
+
+FHS_RMST4: incorporating EGFR and youden cutpoints into the dataset and fixing the quartile estimation, adding some new variables

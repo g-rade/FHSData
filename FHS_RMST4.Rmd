@@ -4,6 +4,7 @@ author: "Grace Rade"
 date: '2022-08-10'
 output: html_document
 ---
+
 ```{r}
 library(survival)
 library(tidyverse)
@@ -125,4 +126,3 @@ all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
   
 export(all_data2, "rmst_egfr.csv")
 ```
-
