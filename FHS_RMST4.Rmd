@@ -42,31 +42,30 @@ all_data2 <- all_data2 %>%
 group_by(all_data2, H010) %>% 
   summarize(quart25 = quantile(ratio, probs = 0.25), quart50 = quantile(ratio, probs = 0.5), quart75 = quantile(ratio, probs = 0.75)) 
 
-
 # assigning TXB2 quartile groups by asprin use = 0 (no use)
 all_data2_aspirin0 <- all_data2 %>% 
   filter(H010 == 0) %>% 
-  mutate(TXB2_quart = if_else(ratio >= 6483.42, "Q4", NULL)) %>% 
-  mutate(youden = if_else(ratio >= 5610, "high", "low")) %>% 
-  mutate(youden2 = if_else(ratio2 >= 65, "high", "low")) %>% 
-  mutate(EGFR_quant = if_else(ratio2 >= 82.6, "Q4", "Q1-Q3"))
+  mutate(TXB2_quart = if_else(ratio > 6483.42, "Q4", NULL)) %>% 
+  mutate(youden = if_else(ratio > 5610, "high", "low")) %>% 
+  mutate(youden2 = if_else(ratio2 > 65, "high", "low")) %>% 
+  mutate(EGFR_quant = if_else(ratio2 > 82.6, "Q4", "Q1-Q3"))
 
-all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 6483.42] <- "Q3"
-all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 4179] <- "Q2"
-all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 2690] <- "Q1"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio <= 6483.42] <- "Q3"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio <= 4179] <- "Q2"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio <= 2690] <- "Q1"
 
 
 # assigning TXB2 quartile groups by aspirin use = 1 (use)
 all_data2_aspirin1 <- all_data2 %>% 
   filter(H010 == 1) %>% 
-  mutate(TXB2_quart = if_else(ratio >= 1700.82, "Q4", NULL)) %>% 
-  mutate(youden = if_else(ratio >= 1300, "high", "low")) %>% 
-  mutate(youden2 = if_else(ratio2 >= 18.6, "high", "low")) %>% 
-  mutate(EGFR_quant = if_else(ratio2 >= 23.4, "Q4", "Q1-Q3"))
+  mutate(TXB2_quart = if_else(ratio > 1700.82, "Q4", NULL)) %>% 
+  mutate(youden = if_else(ratio > 1300, "high", "low")) %>% 
+  mutate(youden2 = if_else(ratio2 > 18.6, "high", "low")) %>% 
+  mutate(EGFR_quant = if_else(ratio2 > 23.4, "Q4", "Q1-Q3"))
 
-all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 1700.82] <- "Q3"
-all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 1147] <- "Q2"
-all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 856] <- "Q1"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio <= 1700.82] <- "Q3"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio <= 1147] <- "Q2"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio <= 856] <- "Q1"
 
 # rejoining the datasets
 all_data2 <- all_data2_aspirin0 %>% 
@@ -126,5 +125,5 @@ all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
 all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
 
   
-export(all_data2, "rmst_egfr2.csv")
+export(all_data2, "rmst_egfr4.csv")
 ```
