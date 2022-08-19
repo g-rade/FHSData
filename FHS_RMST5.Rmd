@@ -33,24 +33,34 @@ all_data2 <- all_data %>%
   inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
   left_join(event_data, by = c("IDTYPE", "ranid"))
 
-# finding the number of na values in lastcon variable
+# finding the number of na values in variable
+all_data2 %>% 
+  filter(is.na(LASTCON)) %>%
+  summarize(n())
+
+
+# add the days variable... if the event is in the list, then DATE is used to calculate days, if else, LASTCON us used
+all_data2 <- all_data2 %>%
+  mutate(days = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29), DATE - examdate3_8, LASTCON - examdate3_8)) 
+
+#find the number of missing days observations
 all_data2 %>% 
   filter(is.na(days)) %>%
   summarize(n())
 
+# specifying that days be calculated with DATEDTH if the person does not have an event in the list and has a missing lastcontact variable, but does have a DATEDTH value
+all_data2$days[all_data2$EVENT.y %in%  !c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) &is.na(all_data2$LASTCON) & !is.na(all_data2$DATEDTH)] <- all_data2$DATEDTH - all_data2$examdate3_8
 
-# add the days and censor variables
-all_data2 <- all_data2 %>%
-  mutate(days = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29), DATE - examdate3_8, LASTCON - examdate3_8)) 
+## checking the number of missing days observations again, seemingly no change
+all_data2 %>% 
+  filter(is.na(days)) %>%
+  summarize(n())
 
-all_data2$days[is.na(all_data2$DATE) & is.na(all_data2$LASTCON) & !is.na(all_data2$DATEDTH)] <- all_data2$DATEDTH - all_data2$examdate3_8
-
-
+## creating the censor variable
 all_data2 <- all_data2 %>% 
   mutate(censor = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) | !is.na(DATEDTH), 0, 1))
 
-
-
+## checking to see how many observations are in each censor group, 0 = 737, 1, = 2307, na = 0
 all_data2 %>%
   group_by(censor) %>%
   summarize(n())
