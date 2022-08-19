@@ -33,14 +33,20 @@ all_data2 <- all_data %>%
   inner_join(last_contact, by = c("IDTYPE", "ranid")) %>% 
   left_join(event_data, by = c("IDTYPE", "ranid"))
 
-all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH[is.na(all_data2$LASTCON)] ## replacing values of last contact with date of death when applicable (should I not do this)
+all_data2$LASTCON[is.na(all_data2$LASTCON)] <- all_data2$DATEDTH ## replacing the lastcon value with datedth if the lastcon value is na
 
 # adding days variable (number of days survived after index exam), censor variable, and egfr ratio variable
 all_data2 <- all_data2 %>% 
-  mutate(days = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) & DATE >= LASTCON, (DATE - examdate3_8), (LASTCON - examdate3_8))) %>% 
-  mutate(censor = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29), 0, 1)) %>% 
-  mutate(censor = if_else(days >= 5045, 1, 0)) %>% 
-  mutate(ratio2 = ratio/egfr)
+  mutate(days = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) | DATE >= LASTCON, DATE - examdate3_8, LASTCON - examdate3_8)) %>% 
+  mutate(ratio2 = ratio/egfr) %>% 
+  mutate(censor = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) & DATE >= LASTCON, 0, 1)) 
+
+all_data2$censor[all_data2$days < 5045] <- 0
+all_data$censor[is.na(all_data2$days)] <- 1
+
+all_data2 %>% 
+  group_by(censor) %>% 
+  summarize(n())
 
 ## ratio 2 is the EGFR ratio
 ## if the patient has a first event that is a death event (in c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29)) and the event date is more recent than the last point of contact, then the DATE variable is used to calculate days lived; otherwise, LASTCON variable is used 
@@ -135,5 +141,6 @@ all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
 all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
 
 # exportng the dataset as a .csv file 
-export(all_data2, "rmst_egfr6.csv")
+export(all_data2, "rmst_freq4.csv")
+
 ```
