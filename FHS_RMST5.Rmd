@@ -26,7 +26,8 @@ last_contact <-read_sas("datasets_copy/dr281_vr_survdth_2019_a_1337s.sas7bdat") 
 event_data <- read_sas("datasets_copy/dr281_vr_soe_2020_a_1340s.sas7bdat") %>%
   select(idtype, ranid, DATE, EVENT) %>% 
   rename(IDTYPE = idtype) %>% 
-  distinct(ranid, .keep_all = TRUE) ##distinct first events (I wonder if this might be part of the problem if it's erasing subsequent deaths after a first event of a different type)
+  filter(EVENT %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29))
+  #distinct(ranid, .keep_all = TRUE) ##distinct first events (I wonder if this might be part of the problem if it's erasing subsequent deaths after a first event of a different type)
 
 ## join all_data with last contact and event data
 all_data2 <- all_data %>% 
@@ -58,12 +59,15 @@ all_data2 %>%
 
 ## creating the censor variable
 all_data2 <- all_data2 %>% 
-  mutate(censor = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) | !is.na(DATEDTH), 0, 1))
+  mutate(censor = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) | !is.na(DATEDTH), 0, 1)) %>% 
+  mutate(ratio2 = ratio/egfr)  
 
 ## checking to see how many observations are in each censor group, 0 = 737, 1, = 2307, na = 0 (should be 0 = 737, na = 1, 1 = 2305)
 all_data2 %>%
   group_by(censor) %>%
   summarize(n())
+
+all_data2$censor[is.na(all_data2$days)] <- NA
 
 
 # assigning TXB2 quartile groups, TXB groups, EGFR groups, EGFR quartiles for asprin use = 0 (no use) using quartiles and/or the youden cutpoints
@@ -150,6 +154,6 @@ all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
 all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
 
 # exportng the dataset as a .csv file 
-export(all_data2, "rmst_freq4.csv")
+export(all_data2, "rmst_means.csv")
 ```
 
