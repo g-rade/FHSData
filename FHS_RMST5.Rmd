@@ -26,7 +26,7 @@ last_contact <-read_sas("datasets_copy/dr281_vr_survdth_2019_a_1337s.sas7bdat") 
 event_data <- read_sas("datasets_copy/dr281_vr_soe_2020_a_1340s.sas7bdat") %>%
   select(idtype, ranid, DATE, EVENT) %>% 
   rename(IDTYPE = idtype) %>% 
-  distinct(ranid, .keep_all = TRUE) 
+  distinct(ranid, .keep_all = TRUE) ##distinct first events (I wonder if this might be part of the problem if it's erasing subsequent deaths after a first event of a different type)
 
 ## join all_data with last contact and event data
 all_data2 <- all_data %>% 
@@ -60,9 +60,96 @@ all_data2 %>%
 all_data2 <- all_data2 %>% 
   mutate(censor = if_else(EVENT.y %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29) | !is.na(DATEDTH), 0, 1))
 
-## checking to see how many observations are in each censor group, 0 = 737, 1, = 2307, na = 0
+## checking to see how many observations are in each censor group, 0 = 737, 1, = 2307, na = 0 (should be 0 = 737, na = 1, 1 = 2305)
 all_data2 %>%
   group_by(censor) %>%
   summarize(n())
+
+
+# assigning TXB2 quartile groups, TXB groups, EGFR groups, EGFR quartiles for asprin use = 0 (no use) using quartiles and/or the youden cutpoints
+all_data2_aspirin0 <- all_data2 %>% 
+  filter(H010 == 0) %>% 
+  mutate(TXB2_quart = if_else(ratio >= 6483, "Q4", NULL)) %>% 
+  mutate(youden = if_else(ratio >= 5610, "high", "low")) %>% 
+  mutate(youden2 = if_else(ratio2 >= 65, "high", "low")) %>% 
+  mutate(EGFR_quant = if_else(ratio2 >= 82.6, "Q4", "Q1-Q3"))
+
+## assigning Q1, Q2, Q3 for TXB2
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 6483] <- "Q3"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 4179] <- "Q2"
+all_data2_aspirin0$TXB2_quart[all_data2_aspirin0$ratio < 2690] <- "Q1"
+
+
+# assigning TXB2 quartile groups, TXB groups, EGFR groups, EGFR quartiles for aspirin use = 1 (use) using the quartiles and/or the youden cutpoints
+all_data2_aspirin1 <- all_data2 %>% 
+  filter(H010 == 1) %>% 
+  mutate(TXB2_quart = if_else(ratio >= 1700, "Q4", NULL)) %>% 
+  mutate(youden = if_else(ratio >= 1300, "high", "low")) %>% 
+  mutate(youden2 = if_else(ratio2 >= 18, "high", "low")) %>% 
+  mutate(EGFR_quant = if_else(ratio2 >= 23.4, "Q4", "Q1-Q3"))
+
+## assigning Q1, Q2, Q3 for TXB2
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 1700.82] <- "Q3"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 1147] <- "Q2"
+all_data2_aspirin1$TXB2_quart[all_data2_aspirin1$ratio < 856] <- "Q1"
+
+# rejoining the datasets
+all_data2 <- all_data2_aspirin0 %>% 
+  full_join(all_data2_aspirin1)
+
+
+# TXB2 quant variable, and begin to convert the event type numbers to text in a new vairable
+all_data2 <- all_data2 %>% 
+  mutate(TXB2_quant = if_else(TXB2_quart == "Q4", "Q4", "Q1-Q3")) %>%
+  mutate(event_type = if_else(EVENT.y == 1, "MI", NULL))
+
+## specifying the event type in text (more for my own reminder of what all the numbers represent)
+
+all_data2$event_type[all_data2$EVENT.y == 2] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 3] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 4] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 5] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 8] <- "MI"
+all_data2$event_type[all_data2$EVENT.y == 9] <- "MI"
+
+all_data2$event_type[all_data2$EVENT.y == 6] <- "Angina"
+all_data2$event_type[all_data2$EVENT.y == 7] <- "Coronary Insufficiency"
+
+all_data2$event_type[all_data2$EVENT.y == 10] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 16] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 17] <- "CVA"
+all_data2$event_type[all_data2$EVENT.y == 19] <- "CVA"
+
+all_data2$event_type[all_data2$EVENT.y == 11] <- "Atherothrombotic Infarction of Brain"
+
+all_data2$event_type[all_data2$EVENT.y == 12] <- "TIA"
+all_data2$event_type[all_data2$EVENT.y == 18] <- "TIA"
+
+all_data2$event_type[all_data2$EVENT.y == 13] <- "Cerebral Embolism"
+all_data2$event_type[all_data2$EVENT.y == 14] <- "Intracerebral Hemmorhage"
+all_data2$event_type[all_data2$EVENT.y == 15] <- "Subarachnoid Hemmorhage"
+
+all_data2$event_type[all_data2$EVENT.y == 20] <- "Death"
+all_data2$event_type[all_data2$EVENT.y == 28] <- "Death"
+all_data2$event_type[all_data2$EVENT.y == 29] <- "Death"
+
+all_data2$event_type[all_data2$EVENT.y == 21] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 22] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 23] <- "CHD Death"
+all_data2$event_type[all_data2$EVENT.y == 24] <- "CHD Death"
+
+all_data2$event_type[all_data2$EVENT.y == 25] <- "CVA Death"
+all_data2$event_type[all_data2$EVENT.y == 13] <- "CVD Death"
+all_data2$event_type[all_data2$EVENT.y == 13] <- "Cancer Death"
+
+all_data2$event_type[all_data2$EVENT.y == 30] <- "IC"
+all_data2$event_type[all_data2$EVENT.y == 31] <- "IC"
+
+all_data2$event_type[all_data2$EVENT.y == 40] <- "CHF"
+all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
+all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
+
+# exportng the dataset as a .csv file 
+export(all_data2, "rmst_freq4.csv")
 ```
 
