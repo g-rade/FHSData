@@ -18,7 +18,11 @@ library(readxl)
 validation_data <- read_excel('Master Database.Revised FinalCohort.10Oct21.xlsx') %>% 
   rename(dead_days = POD...104, event_free = POD...106, last_con = POD...101, Event = 'Death/LVAD/Tx') 
 
+## adding the EGFR grouping variable, 0 = low, 1 = high (same with TXB group)
+validation_data <- validation_data %>% 
+  mutate(EGFR_group = if_else(`TXB2-M/eGFR` > 17.8, 1, 0))
+
 ## export data
-export(validation_data, "validation.csv")
+export(validation_data, "validation2.csv")
 ```
 
