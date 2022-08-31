@@ -1,0 +1,24 @@
+---
+title: "FHS_Validation.Rmd"
+author: "Grace Rade"
+date: '2022-08-31'
+output: html_document
+---
+```{r}
+## load packages and read in datasets (tidyverse, haven, and rio were the only packages that I actually needed for this)
+library(survival)
+library(tidyverse)
+library(rio)
+library(survminer)
+library(haven)
+library(survRM2)
+library(readxl)
+
+## reading in the data and renaming variables, not much wrangling required for this data
+validation_data <- read_excel('Master Database.Revised FinalCohort.10Oct21.xlsx') %>% 
+  rename(dead_days = POD...104, event_free = POD...106, last_con = POD...101, Event = 'Death/LVAD/Tx') 
+
+## export data
+export(validation_data, "validation.csv")
+```
+
