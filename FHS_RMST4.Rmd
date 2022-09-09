@@ -143,4 +143,15 @@ all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
 # exportng the dataset as a .csv file 
 export(all_data2, "rmst_freq4.csv")
 
+#finding the mean age and making a labeled histogram of age
+all_data2_mean <- all_data2 %>% 
+  summarise(age_mean = mean(age, 0,na.rm = TRUE))
+
+all_data2 %>% 
+  ggplot(aes(x = age)) + 
+  geom_histogram(binwidth = 10, color = "coral2") +
+  labs(x = "Age", title = "Distribution of Participant Age, 10-year groups") +
+  geom_vline(xintercept = 65.84297, color = "cyan3") +
+  geom_text(x = 88, y = 750, label = "Mean = 65.84297")
+
 ```

@@ -22,7 +22,19 @@ validation_data <- read_excel('Master Database.Revised FinalCohort.10Oct21.xlsx'
 validation_data <- validation_data %>% 
   mutate(EGFR_group = if_else(`TXB2-M/eGFR` > 17.8, 1, 0))
 
+
+  summarise(age_mean = mean(Age, 0,na.rm = TRUE))
 ## export data
 export(validation_data, "validation3.csv")
+  
+#finding the mean age and making a labeled histogram of age
+validation_data_mean <- validation_data %>% 
+
+validation_data %>% 
+  ggplot(aes(x = Age)) + 
+  geom_histogram(binwidth = 10, color = "coral2") +
+  labs(x = "Age", title = "Distribution of Participant Age, 10-year groups") +
+  geom_vline(xintercept = 61.58095, color = "cyan3") +
+  geom_text(x = 80, y = 30, label = "Mean = 61.58095")
 ```
 
