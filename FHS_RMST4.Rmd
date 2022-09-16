@@ -141,10 +141,10 @@ all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
 all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
 
 all_data2 <- all_data2 %>% 
-  mutate(years = days/365.25)
+  mutate(years = days/365.25, censor4 = if_else(years > 4, 1, 0), censor10 = if_else(years > 10, 1, 0), censor12 = if_else(years > 12, 1, 0), censor14.8 = if_else(years > 14.8, 1, 0)) ## creating the years variable and the new censor variables for different taus 
 
 # exportng the dataset as a .csv file 
-export(all_data2, "rmst_freq4.csv")
+export(all_data2, "rmst_freq5.csv")
 
 #finding the mean age and making a labeled histogram of age
 all_data2_mean <- all_data2 %>% 

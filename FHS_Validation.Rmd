@@ -21,11 +21,11 @@ validation_data <- read_excel('Master Database.Revised FinalCohort.10Oct21.xlsx'
 ## adding the EGFR grouping variable, 0 = low, 1 = high (same with TXB group)
 validation_data <- validation_data %>% 
   mutate(EGFR_group = if_else(`TXB2-M/eGFR` > 17.8, 1, 0)) %>% 
-  mutate(dead_years = dead_days/365.25) %>% 
+  mutate(dead_years = last_con/365.25) %>% 
   mutate(event_free_years = event_free/365.25)
 
 ## export data
-export(validation_data, "validation3.csv")
+export(validation_data, "validation5.csv")
   
 #finding the mean age and making a labeled histogram of age
 validation_data_mean <- validation_data %>% 
