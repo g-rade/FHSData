@@ -24,8 +24,13 @@ validation_data <- validation_data %>%
   mutate(dead_years = last_con/365.25) %>% 
   mutate(event_free_years = event_free/365.25)
 
+
+## censoring the years so > 5 <- 5
+validation_data$dead_years[validation_data$dead_years > 5] <- 5
+validation_data$event_free_years[validation_data$event_free_years > 5] <- 5
+
 ## export data
-export(validation_data, "validation5.csv")
+export(validation_data, "validation6.csv")
   
 #finding the mean age and making a labeled histogram of age
 validation_data_mean <- validation_data %>% 
