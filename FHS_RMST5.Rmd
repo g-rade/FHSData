@@ -155,7 +155,43 @@ all_data2$event_type[all_data2$EVENT.y == 40] <- "CHF"
 all_data2$event_type[all_data2$EVENT.y == 41] <- "CHF"
 all_data2$event_type[all_data2$EVENT.y == 49] <- "CHF"
 
+## creating the years variable and the new censor variables for different taus
+all_data2 <- all_data2 %>% 
+  mutate(years = days/365.25, censor5 = if_else(years > 5, 1, NULL), censor10 = if_else(years > 10, 1, NULL), censor12 = if_else(years > 12, 1, NULL))  
+
+all_data2$censor5[all_data2$years <= 5] <- 0
+all_data2$censor10[all_data2$years <= 10] <- 0
+all_data2$censor12[all_data2$years <= 12] <- 0
+
+all_data2$censor5[is.na(all_data2$years)] <- 1
+all_data2$censor10[is.na(all_data2$years)] <- 1
+all_data2$censor12[is.na(all_data2$years)] <- 1
+
+all_data2$censor5[all_data2$ranid == 2810219745] <- NA
+all_data2$censor10[all_data2$ranid == 2810219745] <- NA
+all_data2$censor12[all_data2$ranid == 2810219745] <- NA
+
+## making new years variables for the different taus we want to use
+all_data2 <- all_data2 %>% 
+  mutate(years5 = years, years10 = years, years12 = years)  
+
+all_data2$years5[all_data2$years > 5 | is.na(all_data2$years)]  <- 5
+all_data2$years10[all_data2$years > 10 | is.na(all_data2$years)] <- 10
+all_data2$years12[all_data2$years > 12 | is.na(all_data2$years)] <- 12
+
+all_data2$years5[all_data2$ranid == 2810219745] <- NA
+all_data2$years10[all_data2$ranid == 2810219745] <- NA
+all_data2$years12[all_data2$ranid == 2810219745] <- NA
+
+
+## setting each of the new variables to tau if years >= tau or NA
+
+all_data2 %>%
+  filter(is.na(censor)) %>% 
+  select(ranid)
+
+
 # exportng the dataset as a .csv file 
-export(all_data2, "rmst_methods_paper.csv")
+export(all_data2, "rmst_methods_paper5.csv")
 ```
 
