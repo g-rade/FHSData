@@ -42,6 +42,10 @@ validation_data_mean <- validation_data %>%
     summarise(age_mean = mean(Age, 0,na.rm = TRUE))
 
 validation_data %>% 
+  group_by(Dead) %>% 
+  summarize(n())
+
+validation_data %>% 
   ggplot(aes(x = Age)) + 
   geom_histogram(binwidth = 10, color = "coral2") +
   labs(x = "Age", title = "Distribution of Participant Age, 10-year groups") +
