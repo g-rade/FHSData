@@ -161,27 +161,28 @@ all_data2 <- all_data2 %>%
 
 all_data2$censor5[all_data2$years > 5] <- 1
 all_data2$censor10[all_data2$years > 10] <- 1
-all_data2$censor12[all_data2$years >13] <- 1
+all_data2$censor13[all_data2$years > 13] <- 1
+
 
 all_data2$censor5[is.na(all_data2$years)] <- 1
 all_data2$censor10[is.na(all_data2$years)] <- 1
-all_data2$censor12[is.na(all_data2$years)] <- 1
+all_data2$censor13[is.na(all_data2$years)] <- 1
 
 all_data2$censor5[all_data2$ranid == 2810219745] <- NA
 all_data2$censor10[all_data2$ranid == 2810219745] <- NA
-all_data2$censor12[all_data2$ranid == 2810219745] <- NA
+all_data2$censor13[all_data2$ranid == 2810219745] <- NA
 
 ## making new years variables for the different taus we want to use
 all_data2 <- all_data2 %>% 
-  mutate(years5 = years, years10 = years, years12 = years)  
+  mutate(years5 = years, years10 = years, years13 = years)  
 
 all_data2$years5[all_data2$years > 5 | is.na(all_data2$years)]  <- 5
 all_data2$years10[all_data2$years > 10 | is.na(all_data2$years)] <- 10
-all_data2$years12[all_data2$years > 13 | is.na(all_data2$years)] <- 13
+all_data2$years13[all_data2$years > 13 | is.na(all_data2$years)] <- 13
 
 all_data2$years5[all_data2$ranid == 2810219745] <- NA
 all_data2$years10[all_data2$ranid == 2810219745] <- NA
-all_data2$years12[all_data2$ranid == 2810219745] <- NA
+all_data2$years13[all_data2$ranid == 2810219745] <- NA
 
 
 ## setting each of the new variables to tau if years >= tau or NA
@@ -192,6 +193,6 @@ all_data2 %>%
 
 
 # exportng the dataset as a .csv file 
-export(all_data2, "rmst_methods_paper6.csv")
+export(all_data2, "rmst_methods_paper7.csv")
 ```
 
