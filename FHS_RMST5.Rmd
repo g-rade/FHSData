@@ -47,6 +47,7 @@ all_data2 <- all_data2 %>%
 #find the number of missing days observations
 all_data2 %>% 
   filter(is.na(days)) %>%
+  group_by(H010) %>% 
   summarize(n())
 
 # specifying that days be calculated with DATEDTH if the person does not have an event in the list and has a missing lastcontact variable, but does have a DATEDTH value
