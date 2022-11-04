@@ -43,7 +43,6 @@ all_data2 %>%
 ```
 
 ```{r}
-rbc_data %>% 
-  summarise()
+export(all_data2, "rbc_data.csv")
 ```
 
