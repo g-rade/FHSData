@@ -15,8 +15,7 @@ library(survRM2)
 
 ## load the datasets
 all_data <- read_csv('rmst_methods_paper7.csv')
-rbc_data <- read_sas('dr281_l_rbcfa_2008_m_0420s_v1.sas7bdat') %>% 
-  mutate(ranid = as.integer(ranid))
+rbc_data <- read_dta("datasets_copy/dr281_l_rbcfa_2008_m_0420s_v1.dta")
 last_contact <- read_sas("datasets_copy/dr281_vr_survdth_2019_a_1337s.sas7bdat")
 cvd_data <- read_dta("FHS 2154 - datasets/dr281_vr_survcvd_2014_a_1023s.dta") %>% 
   select(IDTYPE, ranid, cvd, chd, chf)
@@ -25,36 +24,10 @@ event_data <- read_sas("datasets_copy/dr281_vr_soe_2020_a_1340s.sas7bdat") %>%
   rename(IDTYPE = idtype) %>% 
   filter(EVENT %in% c(20, 21, 22, 23, 24, 25, 26, 27, 28, 29))
 
-
-## well, there are no observations in common with any of these datasets, so... idk what to do about that
-
 all_data2 <- all_data %>% 
   left_join(rbc_data, by = "ranid")  
 
-all_data2 %>% 
-  group_by(RBC_C20_4n6) %>% 
-  summarise(n())
 
-all_data3 <- last_contact %>% 
-  left_join(rbc_data, by = "ranid")
-
-all_data3 %>% 
-  group_by(RBC_C20_4n6) %>% 
-  summarise(n())
-
-all_data4 <- cvd_data %>% 
-  left_join(rbc_data, by = "ranid")
-
-all_data4 %>% 
-  group_by(RBC_C20_4n6) %>% 
-  summarise(n())
-
-all_data5 <- event_data %>% 
-  left_join(rbc_data, by = "ranid")
-
-all_data5 %>% 
-  group_by(RBC_C20_4n6) %>% 
-  summarise(n())
 ```
 
 ```{r}
@@ -64,7 +37,7 @@ quantile(all_data2$ratio2, probs = c(0.1, 0.45, 0.55, 0.9), na.rm = TRUE)
 ```
 
 ```{r}
-all_data %>% 
+all_data2 %>% 
   group_by(H010) %>% 
   summarise(mean_egfr = mean(ratio2, na.rm = TRUE), median_egfr = median(ratio2, na.rm = TRUE), iqr_egfr = IQR(ratio2, na.rm = TRUE), mean_days = mean(days, na.rm = TRUE), median_days = median(days, na.rm = TRUE), iqr_days = IQR(days, na.rm = TRUE))
 ```

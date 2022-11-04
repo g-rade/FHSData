@@ -1,0 +1,45 @@
+---
+title: "FHS_RBC_Dataset"
+author: "Grace Rade"
+date: "2022-10-16"
+output: html_document
+---
+Attempting to manually re-create all_data2022 without excluding so many people (hoping to get some patients in common with RBC dataset)
+
+```{r}
+library(survival)
+library(tidyverse)
+library(rio)
+library(survminer)
+library(haven)
+library(survRM2)
+
+rbc_data <- read_sas('dr281_l_rbcfa_2008_m_0420s_v1.sas7bdat') %>% 
+  mutate(ranid = as.integer(ranid, na.rm = TRUE))
+
+thromboxane_data <- read_sas('datasets_copy/dr281_l_thrmbxn_ex08_1b_1068.sas7bdat')
+
+creatinine1 <- read_dta("datasets_copy/dr281_l_il6_2008_m_0433s_v1.dta")
+creatinine2 <- read_dta("datasets_copy/dr281_fhslab1_8s.dta")
+
+isoprostane <- read_dta("datasets_copy/dr281_l_isopros_2008_m_0512s_v1.dta")
+
+aspirin <- read_dta("datasets_copy/dr281_e_exam_ex03_7_0426s.dta") %>% 
+  select(ranid, h010) %>% 
+  rename(H010 = "h010")
+
+ejection_fraction <- read_dta("datasets_copy/dr281_t_echo_2008_m_0549s_v1.dta") %>% 
+  select(ranid, LVFEJFR, x35, sdate)
+
+mortality <- read_dta("datasets_copy/dr281_vr_dates_2019_a_1175s.dta") %>% 
+  select(ranid, idtype, sex, date3, date8, date4, date9)
+
+event_data <- read_sas('datasets_copy/dr281_vr_soe_2020_a_1340s.sas7bdat')
+
+labs <- read_dta("datasets_copy/dr281_l_fhslab_ex03_7_0267s.dta")
+
+race_egfr <- read_sas('datasets_copy/dr281_vr_raceall_2008_a_0712s.sas7bdat')
+
+## looking for the egfr dataset
+```
+
