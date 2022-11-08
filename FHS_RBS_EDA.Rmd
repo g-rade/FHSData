@@ -40,6 +40,9 @@ quantile(all_data2$ratio2, probs = c(0.1, 0.45, 0.55, 0.9), na.rm = TRUE)
 all_data2 %>% 
   group_by(H010) %>% 
   summarise(mean_egfr = mean(ratio2, na.rm = TRUE), median_egfr = median(ratio2, na.rm = TRUE), iqr_egfr = IQR(ratio2, na.rm = TRUE), mean_days = mean(days, na.rm = TRUE), median_days = median(days, na.rm = TRUE), iqr_days = IQR(days, na.rm = TRUE))
+
+all_data2 %>% 
+  summarise(median = median(days, na.rm = TRUE), IQR = IQR(days, na.rm = TRUE))
 ```
 
 ```{r}

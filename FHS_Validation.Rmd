@@ -51,5 +51,12 @@ validation_data %>%
   labs(x = "Age", title = "Distribution of Participant Age, 10-year groups") +
   geom_vline(xintercept = 61.58095, color = "cyan3") +
   geom_text(x = 80, y = 30, label = "Mean = 61.58095")
+
+validation_data %>% 
+  mutate(dead_years5 = ifelse(dead_years >= 5, 5, dead_years)) %>% 
+  summarise(median_years = median(dead_years5, na.rm = TRUE), IQR = IQR(dead_years5, na.rm = TRUE), quant25 = quantile(dead_years5, probs = (0.25), na.rm = TRUE), quant75 = quantile(dead_years5, probs = (0.75), na.rm = TRUE))
+
+validation_data %>% 
+  summarise(median = median(dead_years, na.rm = TRUE), IQR = IQR(dead_years, na.rm = TRUE), quant25 = quantile(dead_years, probs = (0.25), na.rm = TRUE), quant75 = quantile(dead_years, probs = (0.75), na.rm = TRUE))
 ```
 
