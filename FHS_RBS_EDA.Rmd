@@ -37,6 +37,7 @@ quantile(all_data2$ratio2, probs = c(0.1, 0.45, 0.55, 0.9), na.rm = TRUE)
 ```
 
 ```{r}
+## some more random EDA
 all_data2 %>% 
   group_by(H010) %>% 
   summarise(mean_egfr = mean(ratio2, na.rm = TRUE), median_egfr = median(ratio2, na.rm = TRUE), iqr_egfr = IQR(ratio2, na.rm = TRUE), mean_days = mean(days, na.rm = TRUE), median_days = median(days, na.rm = TRUE), iqr_days = IQR(days, na.rm = TRUE))
@@ -46,6 +47,17 @@ all_data2 %>%
 ```
 
 ```{r}
-export(all_data2, "rbc_data.csv")
+## summing the relevant RBCs and stuff
+all_data2 <- all_data2 %>% 
+  rename(arachidonic = RBC_C20_4n6, eicosapentaenoic = RBC_C20_5n3, docosahexaenoic = RBC_C22_6n3, linoleic = RBC_C18_2n6, gamma_linoleic = RBC_C18_3n6, dihomo_gamma_linoleic = RBC_C20_3n6, eicosadiec = RBC_C20_2n6, docosapentaenoic1 = RBC_C22_5n6, docosapentaenoic2 = RBC_C22_5n3)
+
+
+all_data2 <- all_data2 %>% 
+  mutate(omega3 = (eicosapentaenoic + docosahexaenoic), omega6_1 = (arachidonic + linoleic + gamma_linoleic + dihomo_gamma_linoleic + eicosadiec + docosapentaenoic1), omega6_2 = (arachidonic + linoleic + gamma_linoleic + dihomo_gamma_linoleic + eicosadiec + docosapentaenoic2))
+## ardenic acid not in dataset??
+```
+
+```{r}
+##export(all_data2, "rbc_data.csv")
 ```
 

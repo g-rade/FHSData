@@ -15,8 +15,8 @@ library(survRM2)
 library(readxl)
 
 ## reading in the data and renaming variables, not much wrangling required for this data
-validation_data <- read_excel("Master Database.Revised FinalCohort.17Sep22.xlsx") %>% 
-  rename(dead_days = POD...104, event_free = POD...106, last_con = POD...101, Event = 'Death/LVAD/Tx', TXB_group1 = 'TXB2-M (>/=1500) Group', TXB_group2 = 'TXB2-M (>1291)', EGFR_group = 'TXB2-M/eGFR Group') 
+validation_data <- read_excel("Master Database.Revised FinalCohort.15Nov22.xlsx") %>% 
+  rename(dead_days = 'Date of Death POD', event_free = 'Death/LVAD/Tx POD', last_con = 'Last Known Status  POD', Event = 'Death/LVAD/Tx', TXB_group1 = 'TXB2-M (>/=1500) Group', TXB_group2 = 'TXB2-M (>1291)', EGFR_group = 'TXB2-M/eGFR Group') 
 
 ## adding the years variable
 validation_data <- validation_data %>% 
@@ -35,7 +35,7 @@ validation_data <- validation_data %>%
   select('Cohort Number', Age, Race, Gender, dead_years, event_free_years, Dead, Event, TXB_group1, TXB_group2, EGFR_group)
 
 ## export data
-export(validation_data, "validation10.csv")
+export(validation_data, "validation13.csv")
   
 #finding the mean age and making a labeled histogram of age
 validation_data_mean <- validation_data %>% 
