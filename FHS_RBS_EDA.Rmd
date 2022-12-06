@@ -53,11 +53,11 @@ all_data2 <- all_data2 %>%
 
 
 all_data2 <- all_data2 %>% 
-  mutate(omega3 = (eicosapentaenoic + docosahexaenoic), omega6_1 = (arachidonic + linoleic + gamma_linoleic + dihomo_gamma_linoleic + eicosadiec + docosapentaenoic1), omega6_2 = (arachidonic + linoleic + gamma_linoleic + dihomo_gamma_linoleic + eicosadiec + docosapentaenoic2), ratio_rbc_3 = ratio2/omega3, ratio_rbc_6_1 = ratio2/omega6_1, ratio_rbc_6_2 = ratio2/omega6_2)
+  mutate(omega3 = (eicosapentaenoic + docosahexaenoic), omega6_1 = (arachidonic + linoleic + gamma_linoleic + dihomo_gamma_linoleic + eicosadiec + docosapentaenoic1), omega6_2 = (arachidonic + linoleic + gamma_linoleic + dihomo_gamma_linoleic + eicosadiec + docosapentaenoic2), ratio_rbc_3 = ratio2/omega3, ratio_rbc_6_1 = ratio2/omega6_1, ratio_rbc_6_2 = ratio2/omega6_2, ratio_rbc_3 = ratio2/omega3, ratio_aa = ratio2/arachidonic)
 ## ardenic acid not in dataset??
 ```
 
 ```{r}
-export(all_data2, "rbc_data2.csv")
+export(all_data2, "rbc_data3.csv")
 ```
 
